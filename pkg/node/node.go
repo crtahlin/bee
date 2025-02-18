@@ -254,9 +254,9 @@ func NewBee(
 		return nil, fmt.Errorf("reserve capacity doubling is only allowed for full nodes")
 	}
 
-	const maxAllowedDoubling = 1
+	const maxAllowedDoubling = 10
 	if o.ReserveCapacityDoubling < 0 || o.ReserveCapacityDoubling > maxAllowedDoubling {
-		return nil, fmt.Errorf("config reserve capacity doubling has to be between default: 0 and maximum: 1")
+		return nil, fmt.Errorf("config reserve capacity doubling has to be between default: 0 and maximum: 10")
 	}
 	var shallowReceiptTolerance = maxAllowedDoubling - o.ReserveCapacityDoubling
 
