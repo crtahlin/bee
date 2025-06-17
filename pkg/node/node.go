@@ -191,7 +191,7 @@ const (
 	reserveWakeUpDuration         = 15 * time.Minute          // time to wait before waking up reserveWorker
 	reserveMinEvictCount          = 1_000
 	cacheMinEvictCount            = 10_000
-	maxAllowedDoubling            = 1
+	maxAllowedDoubling            = 10
 )
 
 func NewBee(
