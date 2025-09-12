@@ -75,7 +75,7 @@ chequebook-enable: true
 ## Participates in the storage incentive mechanism and redistribution game
 storage-incentives-enable: true
 
-## Payment threshold ("13500000" plur = 0.0135 xBZZ)
+## Payment threshold ("13500000" PLUR = 0.00000135 xBZZ)
 ## Lower values = more frequent settlements, higher values = fewer settlements
 payment-threshold: "13500000"
 
