@@ -148,6 +148,12 @@ statestore-cache-capacity: "100000"    # State cache entries
 # 📋 BLOCKCHAIN & CONTRACT SETTINGS  
 # ==============================================================================
 
+## SWAP protocol - Handles bandwidth incentives and peer payments
+## Enable for full/light nodes, disable only for ultra-light nodes
+swap-enable: true
+# swap-factory-address: ""               # auto-set for known networks
+# swap-initial-deposit: "0"              # initial chequebook deposit
+
 ## Gas settings
 ## • minimum-gas-tip-cap: 0 = Use network suggested gas price
 ## • Set higher during network congestion to ensure transaction inclusion
@@ -203,15 +209,6 @@ neighborhood-suggester: "https://api.swarmscan.io/v1/network/neighborhoods/sugge
 ## Withdrawal restrictions (security feature)
 ## List addresses that are allowed to receive withdrawals
 # withdrawal-addresses-whitelist: []
-
-# ==============================================================================
-# 🧪 LEGACY/EXPERIMENTAL FEATURES
-# ==============================================================================
-
-## SWAP protocol (legacy payment system - keep disabled)
-# swap-enable: false
-# swap-factory-address: ""
-# swap-initial-deposit: "0"
 
 # ==============================================================================
 # 🔧 DEBUGGING & MONITORING (Developers only)
