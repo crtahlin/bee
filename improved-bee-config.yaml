@@ -56,7 +56,7 @@ full-node: true
 mainnet: true
 
 ## Network ID (automatically set based on mainnet flag, rarely needs changes)
-## • "1" = Mainnet, "100" = Gnosis Chain, others = testnets
+## • "1" = Swarm mainnet, other numeric IDs used for Swarm testnets (e.g., "10" for testnet)
 network-id: "1"
 
 ## Bootstrap nodes for peer discovery (mainnet default shown)
