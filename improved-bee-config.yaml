@@ -1,0 +1,185 @@
+## Bee Node Configuration - https://docs.ethswarm.org/docs/working-with-bee/configuration
+##
+## This configuration is optimized for full-node operators with sensible defaults.
+## Most settings are ready-to-use; modify only what's needed for your setup.
+
+# ==============================================================================
+# ESSENTIAL SETTINGS (Most likely to need modification)
+# ==============================================================================
+
+## Blockchain RPC endpoint - REQUIRED for full mainnet operation  
+## Examples: "https://rpc.gnosischain.com", "wss://rpc.gnosischain.com/wss"
+## Use Gnosis Chain RPC for mainnet, Sepolia for testnet
+# blockchain-rpc-endpoint: ""
+
+## Data directory - ensure sufficient disk space (100GB+ recommended)
+data-dir: "/var/lib/bee"
+
+## Password file for node key decryption
+password-file: "/var/lib/bee/password"
+
+## Configuration file location
+config: "/etc/bee/bee.yaml"
+
+# ==============================================================================
+# NODE OPERATION MODE
+# ==============================================================================
+
+## Connect to mainnet (true) or testnet (false)
+mainnet: true
+
+## Network ID: "1"=mainnet, "100"=gnosis, others=testnets
+network-id: "1"
+
+## Bootstrap nodes for initial peer discovery
+bootnode: ["/dnsaddr/mainnet.ethswarm.org"]
+
+## Node mode: true=full node (recommended), false=light node
+full-node: true
+
+## Enable storage incentives to earn rewards (recommended for full nodes)
+storage-incentives-enable: true
+
+## Enable chequebook for payments (required for mainnet)
+chequebook-enable: true
+
+# ==============================================================================
+# NETWORK CONNECTIVITY
+# ==============================================================================
+
+## API address: "127.0.0.1:1633"=local only, "0.0.0.0:1633"=all interfaces
+api-addr: "127.0.0.1:1633"
+
+## P2P address: ":1634"=all interfaces (recommended for full nodes)
+p2p-addr: ":1634"
+
+## NAT address - set your public IP:port if behind firewall
+## Example: "123.456.789.0:1634"
+# nat-addr: ""
+
+## Accept incoming connections: true=always accept (recommended for full nodes)
+# bootnode-mode: false
+
+## WebSocket transport: false=disabled, true=enabled (experimental)
+# p2p-ws-enable: false
+
+## CORS origins for browser API access: []=none, ["*"]=all, ["https://myapp.com"]=specific
+# cors-allowed-origins: []
+
+## Private network support: true=allow private IPs (testing only), false=public only
+# allow-private-cidrs: false
+
+# ==============================================================================
+# STORAGE & PERFORMANCE
+# ==============================================================================
+
+## Cache capacity in chunks (1M chunks ≈ 4GB RAM)
+## Recommended: "1000000" for 8GB+ RAM, "500000" for 4GB RAM
+cache-capacity: "1000000"
+
+## Enable content caching for better performance
+cache-retrieval: true
+
+## Storage radius: "0"=store everything, higher=store less (full nodes use "0")
+minimum-storage-radius: "0"
+
+## Database settings (defaults work well for most setups)
+db-block-cache-capacity: "33554432"    # 32MB block cache
+db-write-buffer-size: "33554432"       # 32MB write buffer
+db-open-files-limit: "200"             # max open files
+db-disable-seeks-compaction: true      # disable seek compactions (recommended)
+statestore-cache-capacity: "100000"    # state store cache entries
+
+# ==============================================================================
+# PAYMENT SETTINGS
+# ==============================================================================
+
+## Payment threshold in plur ("13500000" plur = 0.0135 BZZ)
+payment-threshold: "13500000"
+
+## Settlement timing: 50=settle at 50% of peer's threshold (recommended)
+payment-early-percent: 50
+
+## Debt tolerance: 25=disconnect at 125% of threshold (recommended)
+payment-tolerance-percent: 25
+
+## Gas settings: 0=use suggested price, higher=priority during congestion
+minimum-gas-tip-cap: 0
+
+## SWAP settings (advanced users only)
+# swap-enable: false                     # enable SWAP protocol
+# swap-factory-address: ""               # auto-set for known networks
+# swap-initial-deposit: "0"              # initial chequebook deposit
+
+# ==============================================================================
+# SMART CONTRACT ADDRESSES
+# ==============================================================================
+## Contract addresses (automatically set for mainnet/testnet)
+
+# postage-stamp-address: ""              # postage stamp contract
+# postage-stamp-start-block: "0"         # block to start processing from
+# price-oracle-address: ""               # price oracle contract
+# redistribution-address: ""             # redistribution contract
+# staking-address: ""                    # staking contract
+
+# ==============================================================================
+# ADVANCED SETTINGS (Usually don't need changes)
+# ==============================================================================
+
+## Logging: "info"=normal, "debug"=verbose, "error"=minimal, "trace"=maximum
+## Options: silent, error, warn, info, debug, trace
+verbosity: "info"
+
+## Block time in seconds for your blockchain
+block-time: "5"
+
+## Warmup timeout before full operation
+warmup-time: "5m0s"
+
+## Postage snapshots: false=sync from scratch, true=use network snapshot (faster)
+# use-postage-snapshot: false            # bootstrap using network snapshot
+# skip-postage-snapshot: false           # skip saving snapshots locally
+# resync: false                          # force resync contract data
+
+## Neighborhood targeting (leave empty for random positioning)
+# target-neighborhood: ""                # binary format (e.g., "111111001")
+neighborhood-suggester: "https://api.swarmscan.io/v1/network/neighborhoods/suggestion"
+
+## Static peers (nodes that won't be disconnected)
+# static-nodes: []
+
+## Withdrawal whitelist (empty = no restrictions)
+# withdrawal-addresses-whitelist: []
+
+## Reserve capacity management
+# reserve-capacity-doubling: 0
+
+## Domain name resolution
+# resolver-options: []                   # ENS-compatible endpoints
+
+## Welcome message for peer handshakes
+# welcome-message: ""
+
+## Alternative password input (less secure than password-file)
+# password: ""
+
+## Help flag for print config
+# help: false
+
+# ==============================================================================
+# DEBUGGING & MONITORING (Developers only)
+# ==============================================================================
+
+## Distributed tracing for debugging
+# tracing-enable: false                  # enable OpenTelemetry tracing
+tracing-endpoint: "127.0.0.1:6831"     # Jaeger collector endpoint
+tracing-service-name: "bee"            # service identifier
+# tracing-host: ""                       # alternative: specify host only
+# tracing-port: ""                       # alternative: specify port only
+
+## Go runtime profiling (impacts performance)
+# pprof-profile: false                   # enable CPU profiling
+# pprof-mutex: false                     # enable mutex profiling
+
+## Transaction debugging (may cause failures)
+# transaction-debug-mode: false          # skip gas estimation
