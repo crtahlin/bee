@@ -4,7 +4,7 @@
 ## 1. ✅ Set blockchain-rpc-endpoint (MUST be full archival Gnosis Chain node)
 ## 2. ✅ Create password file at password-file path 
 ## 3. ✅ Set nat-addr if behind NAT/firewall (critical for peer connections)
-## 4. ✅ Ensure data-dir has 100GB+ free space on SSD
+## 4. ✅ Ensure data-dir has 30GB+ free space on SSD
 ## 5. ✅ Fund your node with xDAI and xBZZ tokens
 ##
 ## ⚠️  CRITICAL WARNINGS FROM DOCUMENTATION:
@@ -36,7 +36,7 @@ password-file: "/var/lib/bee/password"
 ## Example: "123.45.67.89:1634"
 # nat-addr: ""
 
-## Data directory - Ensure 100GB+ free space on SSD for optimal performance
+## Data directory - Ensure 30GB+ free space on SSD (HDD strongly discouraged)
 ## ⚠️  BACKUP: Keep secure backups of keys and chequebook data
 data-dir: "/var/lib/bee"
 
