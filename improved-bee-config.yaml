@@ -67,8 +67,8 @@ bootnode: ["/dnsaddr/mainnet.ethswarm.org"]
 # 💰 ECONOMIC SETTINGS (Required for network participation)
 # ==============================================================================
 
-## Enable chequebook - REQUIRED for full network participation
-## Handles payments between peers, postage stamps, and rewards
+## Enable chequebook - REQUIRED for bandwidth incentives
+## Handles bandwidth payments between peers (not postage stamps or storage rewards)
 chequebook-enable: true
 
 ## Enable storage incentives - REQUIRED to earn rewards
