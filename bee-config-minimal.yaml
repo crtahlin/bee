@@ -1,0 +1,166 @@
+# Bee Node Configuration
+# Documentation: https://docs.ethswarm.org/docs/bee/working-with-bee/configuration
+
+# ==============================================================================
+# QUICK SETUP CHECKLIST
+# ==============================================================================
+# 1. Set blockchain-rpc-endpoint (archival node required)
+# 2. Create password file
+# 3. Set nat-addr if behind NAT
+# 4. Ensure 30GB+ SSD space
+# 5. Fund with xDAI + xBZZ
+
+# ==============================================================================
+# CRITICAL SETTINGS
+# ==============================================================================
+
+# Blockchain RPC - must be archival node
+# Docs: https://docs.ethswarm.org/docs/bee/working-with-bee/configuration#blockchain-rpc-endpoint
+blockchain-rpc-endpoint: ""
+
+# Node authentication
+password-file: "/var/lib/bee/password"
+# password: ""
+
+# Public connectivity (required if behind NAT)
+# Format: "public-ip:1634"
+# nat-addr: ""
+
+# Storage location (30GB+ SSD recommended)
+data-dir: "/var/lib/bee"
+
+config: "/etc/bee/bee.yaml"
+
+# ==============================================================================
+# NODE TYPE & NETWORK
+# ==============================================================================
+
+# Network: true=mainnet, false=testnet
+mainnet: true
+
+# Swarm network ID: "1"=mainnet, others=testnets
+network-id: "1"
+
+# Node type: true=full, false=light
+full-node: true
+
+# Initial peers
+bootnode: ["/dnsaddr/mainnet.ethswarm.org"]
+
+# ==============================================================================
+# ECONOMIC PROTOCOLS
+# ==============================================================================
+
+# Storage rewards
+# Docs: https://docs.ethswarm.org/docs/bee/working-with-bee/storage-incentives
+storage-incentives-enable: true
+
+# Bandwidth payments
+# Docs: https://docs.ethswarm.org/docs/bee/working-with-bee/bandwidth-incentives
+chequebook-enable: true
+swap-enable: true
+
+# Payment settings
+payment-threshold: "13500000"          # 0.00000135 xBZZ
+payment-early-percent: 50
+payment-tolerance-percent: 25
+
+# Gas settings
+minimum-gas-tip-cap: 0
+# swap-factory-address: ""
+# swap-initial-deposit: "0"
+
+# ==============================================================================
+# CONNECTIVITY
+# ==============================================================================
+
+# API access
+api-addr: "127.0.0.1:1633"
+
+# P2P networking
+p2p-addr: ":1634"
+
+# Advanced connectivity options
+# bootnode-mode: false
+# p2p-ws-enable: false
+# cors-allowed-origins: []
+# allow-private-cidrs: false
+# static-nodes: []
+
+# ==============================================================================
+# PERFORMANCE & STORAGE
+# ==============================================================================
+
+# Cache settings (affects RAM usage)
+# Docs: https://docs.ethswarm.org/docs/bee/working-with-bee/caching
+cache-capacity: "1000000"              # ~4GB RAM
+cache-retrieval: true
+minimum-storage-radius: "0"
+
+# Database tuning
+db-block-cache-capacity: "33554432"    # 32MB
+db-write-buffer-size: "33554432"       # 32MB
+db-open-files-limit: "200"
+db-disable-seeks-compaction: true
+statestore-cache-capacity: "100000"
+
+# ==============================================================================
+# BLOCKCHAIN INTEGRATION
+# ==============================================================================
+
+# Timing
+block-time: "5"
+
+# Contract addresses (auto-configured)
+# postage-stamp-address: ""
+# postage-stamp-start-block: "0"
+# price-oracle-address: ""
+# redistribution-address: ""
+# staking-address: ""
+
+# Postage snapshots
+# use-postage-snapshot: false
+# skip-postage-snapshot: false
+# resync: false
+
+# ==============================================================================
+# ADVANCED SETTINGS
+# ==============================================================================
+
+# Logging: silent|error|warn|info|debug|trace
+verbosity: "info"
+
+# Startup
+warmup-time: "5m0s"
+
+# Network positioning
+# target-neighborhood: ""
+neighborhood-suggester: "https://api.swarmscan.io/v1/network/neighborhoods/suggestion"
+
+# Storage management
+# reserve-capacity-doubling: 0
+
+# Security
+# withdrawal-addresses-whitelist: []
+
+# Misc
+# resolver-options: []
+# welcome-message: ""
+# help: false
+
+# ==============================================================================
+# DEBUGGING
+# ==============================================================================
+
+# Tracing
+# Docs: https://docs.ethswarm.org/docs/bee/working-with-bee/debugging
+# tracing-enable: false
+tracing-endpoint: "127.0.0.1:6831"
+tracing-service-name: "bee"
+# tracing-host: ""
+# tracing-port: ""
+
+# Profiling (developers only)
+# pprof-profile: false
+# pprof-mutex: false
+# transaction-debug-mode: false
