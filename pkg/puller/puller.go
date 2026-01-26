@@ -37,9 +37,9 @@ const (
 	DefaultHistRateWindow = time.Minute * 15
 
 	IntervalPrefix = "sync_interval"
-	recalcPeersDur = time.Minute * 5
+	recalcPeersDur = time.Second * 30 // experiment: faster peer recalculation for doubled nodes
 
-	maxChunksPerSecond = 1000 // roughly 4 MB/s
+	maxChunksPerSecond = 10000 // roughly 40 MB/s - high throughput experiment
 
 	maxPODelta = 2 // the lowest level of proximity order (of peers) subtracted from the storage radius allowed for chunk syncing.
 )
