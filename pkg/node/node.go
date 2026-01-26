@@ -192,7 +192,7 @@ const (
 	reserveWakeUpDuration         = 15 * time.Minute          // time to wait before waking up reserveWorker
 	reserveMinEvictCount          = 1_000
 	cacheMinEvictCount            = 10_000
-	maxAllowedDoubling            = 1
+	maxAllowedDoubling            = 10 // Increased from 1 for scaling experiments
 )
 
 func NewBee(
@@ -1192,8 +1192,12 @@ func NewBee(
 
 			isFullySynced := func() bool {
 				reserveTreshold := reserveCapacity * 5 / 10
-				logger.Debug("Sync status check evaluated", "stabilized", detector.IsStabilized())
-				return localStore.ReserveSize() >= reserveTreshold && pullerService.SyncRate() == 0 && detector.IsStabilized()
+				syncRate := pullerService.SyncRate()
+				// Allow small non-zero sync rate (< 1 chunk/s) to support faster peer recalc
+				// This enables nodes with 30s recalc interval to still play lottery
+				// Risk is minimal: 16 chunks sampled, 99.9% sync = 98.4% success rate
+				logger.Debug("Sync status check evaluated", "stabilized", detector.IsStabilized(), "syncRate", syncRate)
+				return localStore.ReserveSize() >= reserveTreshold && syncRate < 1.0 && detector.IsStabilized()
 			}
 
 			agent, err = storageincentives.New(
