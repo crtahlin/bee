@@ -52,6 +52,12 @@ const (
 	makeOfferTimeout                = 15 * time.Minute
 	handleMaxChunksPerSecond        = 250
 	handleRequestsLimitRate         = time.Second / handleMaxChunksPerSecond // handle max `handleMaxChunksPerSecond` chunks per second per peer
+
+	// maxConcurrentHasChecks limits concurrent ReserveHas calls across all sync sessions.
+	// Without this, hundreds of concurrent pullsync goroutines can saturate the LevelDB
+	// cache mutex (lru.Promote) causing 1000%+ CPU from lock contention.
+	// 128 allows high parallelism while preventing runaway contention.
+	maxConcurrentHasChecks = 128
 )
 
 // Interface is the PullSync interface.
@@ -79,6 +85,7 @@ type Syncer struct {
 	maxPage uint64
 
 	limiter *ratelimit.Limiter
+	hasSem  chan struct{} // semaphore limiting concurrent ReserveHas calls
 
 	Interface
 	io.Closer
@@ -105,6 +112,7 @@ func New(
 		quit:        make(chan struct{}),
 		maxPage:     maxPage,
 		limiter:     ratelimit.New(handleRequestsLimitRate, int(maxPage)),
+		hasSem:      make(chan struct{}, maxConcurrentHasChecks),
 	}
 }
 
@@ -292,7 +300,16 @@ func (s *Syncer) Sync(ctx context.Context, peer swarm.Address, bin uint8, start 
 		}
 		s.metrics.Offered.Inc()
 		if s.store.IsWithinStorageRadius(a) {
+			// Acquire semaphore to limit concurrent LevelDB lookups.
+			// Without this, hundreds of goroutines contend on leveldb/cache/lru.Promote mutex.
+			select {
+			case s.hasSem <- struct{}{}:
+			case <-ctx.Done():
+				return 0, 0, ctx.Err()
+			}
 			have, err = s.store.ReserveHas(a, batchID, stampHash)
+			<-s.hasSem
+
 			if err != nil {
 				s.logger.Debug("storage has", "error", err)
 				return 0, 0, err

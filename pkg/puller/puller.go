@@ -37,7 +37,7 @@ const (
 	DefaultHistRateWindow = time.Minute * 15
 
 	IntervalPrefix = "sync_interval"
-	recalcPeersDur = time.Second * 30 // experiment: faster peer recalculation for doubled nodes
+	recalcPeersDur = time.Minute * 1 // experiment: balanced peer recalc (30s caused LevelDB cache contention)
 
 	maxChunksPerSecond = 10000 // roughly 40 MB/s - high throughput experiment
 
