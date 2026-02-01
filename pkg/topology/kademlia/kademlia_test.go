@@ -917,7 +917,21 @@ func TestAddressBookQuickPrune_FLAKY(t *testing.T) {
 	waitCounter(t, &conns, 1)
 	waitCounter(t, &failedConns, 0)
 
-	// add non connectable peer, check connection and failed connection counters
+	// add non connectable peer and trigger multiple connection attempts
+	// maxConnAttempts = 3, so peer is pruned after 3 failed attempts
+	// Each AddPeers call triggers the manage loop, causing a connection attempt
+	kad.AddPeers(nonConnPeer.Overlay)
+	waitCounter(t, &conns, 0)
+	waitCounter(t, &failedConns, 1)
+
+	// Wait for retry interval and trigger again
+	time.Sleep(5 * time.Millisecond)
+	kad.AddPeers(nonConnPeer.Overlay)
+	waitCounter(t, &conns, 0)
+	waitCounter(t, &failedConns, 1)
+
+	// Wait and trigger third attempt
+	time.Sleep(5 * time.Millisecond)
 	kad.AddPeers(nonConnPeer.Overlay)
 	waitCounter(t, &conns, 0)
 	waitCounter(t, &failedConns, 1)

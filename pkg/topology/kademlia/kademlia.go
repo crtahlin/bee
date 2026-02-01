@@ -36,7 +36,7 @@ import (
 const loggerName = "kademlia"
 
 const (
-	maxConnAttempts     = 1 // when there is maxConnAttempts failed connect calls for a given peer it is considered non-connectable
+	maxConnAttempts     = 3 // when there is maxConnAttempts failed connect calls for a given peer it is considered non-connectable (was 1, increased to match maxNeighborAttempts)
 	maxBootNodeAttempts = 3 // how many attempts to dial to boot-nodes before giving up
 	maxNeighborAttempts = 3 // how many attempts to dial to boot-nodes before giving up
 
