@@ -301,23 +301,29 @@ func (s *Service) checkAndAddPeers(ctx context.Context, peers pb.Peers) {
 
 			start := time.Now()
 
-			// check if the underlay is usable by doing a raw ping using libp2p
-			if _, err := s.streamer.Ping(ctx, multiUnderlay); err != nil {
-				s.metrics.PingFailureTime.Observe(time.Since(start).Seconds())
-				s.metrics.UnreachablePeers.Inc()
-				s.logger.Debug("unreachable peer underlay", "peer_address", hex.EncodeToString(newPeer.Overlay), "underlay", multiUnderlay)
-				return
-			}
-			s.metrics.PingTime.Observe(time.Since(start).Seconds())
-
-			s.metrics.ReachablePeers.Inc()
-
 			bzzAddress := bzz.Address{
 				Overlay:   swarm.NewAddress(newPeer.Overlay),
 				Underlay:  multiUnderlay,
 				Signature: newPeer.Signature,
 				Nonce:     newPeer.Nonce,
 			}
+
+			// check if the underlay is usable by doing a raw ping using libp2p
+			if _, err := s.streamer.Ping(ctx, multiUnderlay); err != nil {
+				s.metrics.PingFailureTime.Observe(time.Since(start).Seconds())
+				s.metrics.UnreachablePeers.Inc()
+				s.logger.Debug("unreachable peer underlay", "peer_address", hex.EncodeToString(newPeer.Overlay), "underlay", multiUnderlay)
+
+				// Still add to addressBook so Kademlia can try later
+				// Don't add to peersToAdd - let Kademlia discover via its own mechanisms
+				if err := s.addressBook.Put(bzzAddress.Overlay, bzzAddress); err != nil {
+					s.logger.Debug("failed to store unreachable peer", "peer_address", hex.EncodeToString(newPeer.Overlay), "error", err)
+				}
+				return
+			}
+			s.metrics.PingTime.Observe(time.Since(start).Seconds())
+
+			s.metrics.ReachablePeers.Inc()
 
 			err := s.addressBook.Put(bzzAddress.Overlay, bzzAddress)
 			if err != nil {
