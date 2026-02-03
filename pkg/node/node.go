@@ -1193,11 +1193,12 @@ func NewBee(
 			isFullySynced := func() bool {
 				reserveTreshold := reserveCapacity * 5 / 10
 				syncRate := pullerService.SyncRate()
-				// Allow small non-zero sync rate (< 1 chunk/s) to support faster peer recalc
-				// This enables nodes with 30s recalc interval to still play lottery
-				// Risk is minimal: 16 chunks sampled, 99.9% sync = 98.4% success rate
-				logger.Debug("Sync status check evaluated", "stabilized", detector.IsStabilized(), "syncRate", syncRate)
-				return localStore.ReserveSize() >= reserveTreshold && syncRate < 1.0 && detector.IsStabilized()
+				// Scale sync rate threshold by reserve capacity doubling
+				// A node with doubling=6 (64 neighborhoods) receives ~64x more chunk offers
+				// than a basic node, so allow proportionally higher sync rate
+				syncRateThreshold := float64(uint64(1) << o.ReserveCapacityDoubling) // 2^doubling chunks/sec
+				logger.Debug("Sync status check evaluated", "stabilized", detector.IsStabilized(), "syncRate", syncRate, "syncRateThreshold", syncRateThreshold)
+				return localStore.ReserveSize() >= reserveTreshold && syncRate < syncRateThreshold && detector.IsStabilized()
 			}
 
 			agent, err = storageincentives.New(
