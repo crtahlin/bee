@@ -441,6 +441,13 @@ func (db *DB) ReserveSize() int {
 	return db.reserve.Size()
 }
 
+// IsSamplingActive returns true when the reserve sampler is running.
+// This is used by pullsync to pause sync operations during sampling to
+// avoid LevelDB contention.
+func (db *DB) IsSamplingActive() bool {
+	return db.samplingActive.Load()
+}
+
 func (db *DB) ReserveSizeWithinRadius() uint64 {
 	return reserveSizeWithinRadius.Load()
 }

@@ -264,6 +264,10 @@ func (s *ReserveStore) ReserveSample(context.Context, []byte, uint8, uint64, *bi
 	return s.sample, nil
 }
 
+func (s *ReserveStore) IsSamplingActive() bool {
+	return false
+}
+
 type Option interface {
 	apply(*ReserveStore)
 }

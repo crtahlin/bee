@@ -300,6 +300,11 @@ func (s *Syncer) Sync(ctx context.Context, peer swarm.Address, bin uint8, start 
 		}
 		s.metrics.Offered.Inc()
 		if s.store.IsWithinStorageRadius(a) {
+			// Skip during sampling to avoid LevelDB contention
+			if s.store.IsSamplingActive() {
+				continue
+			}
+
 			// Acquire semaphore to limit concurrent LevelDB lookups.
 			// Without this, hundreds of goroutines contend on leveldb/cache/lru.Promote mutex.
 			select {
@@ -395,6 +400,11 @@ func (s *Syncer) Sync(ctx context.Context, peer swarm.Address, bin uint8, start 
 
 	chunksPut := 0
 	if len(chunksToPut) > 0 {
+		// Skip storing during sampling to avoid LevelDB contention.
+		// Chunks will be retried on next sync cycle.
+		if s.store.IsSamplingActive() {
+			return topmost, 0, chunkErr
+		}
 
 		s.metrics.Delivered.Add(float64(len(chunksToPut)))
 		s.metrics.LastReceived.WithLabelValues(fmt.Sprintf("%d", bin)).Add(float64(len(chunksToPut)))
