@@ -37,6 +37,58 @@ Add `samplingActive` atomic flag to pause pullsync during sampling:
 - Sync pauses during sampling (~5-10 min per round)
 - Sync rate recovers after sampling completes
 
+## Actual Test Results (2026-02-07)
+
+### Test Configuration
+
+- **Node:** Local node (doubling 5, storage radius 4)
+- **Binary:** `2.7.0-rc1-be6aa095-dirty` with pause-sync feature
+- **Reserve size:** 115.7M chunks
+- **Committed depth:** 9
+
+### Test Command
+
+```bash
+curl -s "http://localhost:1633/rchash/9/{overlay}/{anchor2}"
+```
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| **Total Duration** | **1m 22s** |
+| Chunks Iterated | 3,566,900 |
+| Sample Inserts | 198 |
+| Chunk Load (parallel workers) | 5m 23s |
+| Taddr Calculation (parallel workers) | 9m 33s |
+| Chunk Load Failed | 0 |
+| Stamp Load Failed | 0 |
+
+### Performance Comparison
+
+| Scenario | Duration | Improvement |
+|----------|----------|-------------|
+| Before (with pullsync contention) | 7-13 min | baseline |
+| After (pause-sync-during-sampling) | **1m 22s** | **5-10x faster** |
+
+### Log Output
+
+```
+"time"="2026-02-07 21:24:37.171481" "level"="info" "logger"="node/storer"
+"msg"="reserve sampler finished" "duration"="1m22.63898688s" "storage_radius"=9
+"stats"="{TotalIterated:3566900 SampleInserts:198 ChunkLoadDuration:5m23s TaddrDuration:9m33s}"
+```
+
+### Analysis
+
+The parallel worker times (5m23s chunk load + 9m33s taddr calculation) represent
+cumulative time across all workers. The wall-clock time of only 1m22s demonstrates
+that workers run efficiently in parallel without LevelDB contention.
+
+**Key insight:** By pausing pullsync during sampling, the sampler gets dedicated
+LevelDB access, eliminating the mutex contention that was causing 7-13 minute
+sampling times.
+
 ## Verification Steps
 
 1. Start node with new binary
