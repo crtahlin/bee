@@ -132,6 +132,43 @@ sampling times.
 The 2TB node with ~2x the reserve completed in ~2.7x the time, showing reasonable
 scaling. Both nodes demonstrate 5-10x improvement over the pre-optimization baseline.
 
+---
+
+## Historical Comparison (2TB Node)
+
+The 2TB node has log history showing before/after performance:
+
+| Date | Duration | ChunkLoadDuration (parallel) | Status |
+|------|----------|------------------------------|--------|
+| 2026-02-07 21:36 | **3m 40s** | 10m 30s | With pause-sync |
+| 2026-02-06 21:27 | 7m 40s | 39m 8s | Without optimization |
+| 2026-02-06 21:36 | 10m 43s | 1h 3m 20s | Without optimization |
+
+### Raw Log Entries
+
+**With pause-sync-during-sampling (2026-02-07):**
+```
+"duration"="3m40.527639315s" "stats"="{TotalIterated:3658687 ChunkLoadDuration:10m30s}"
+```
+
+**Without optimization (2026-02-06):**
+```
+"duration"="7m40.271415803s" "stats"="{TotalIterated:3659136 ChunkLoadDuration:39m8s ChunkLoadFailed:492}"
+"duration"="10m43.071614017s" "stats"="{TotalIterated:3409288 ChunkLoadDuration:1h3m20s}"
+```
+
+### Analysis
+
+The historical data provides clear evidence of the optimization's effectiveness:
+
+1. **Duration reduced 2-3x**: From 7-10 minutes to 3m 40s
+2. **ChunkLoadDuration reduced 4-6x**: From 39-63 minutes to 10 minutes
+3. **ChunkLoadFailed eliminated**: The older run had 492 failed chunk loads due to contention
+
+The ChunkLoadDuration metric represents cumulative time across parallel workers.
+The dramatic reduction shows that LevelDB contention from concurrent pullsync
+operations was the primary bottleneck.
+
 ## Verification Steps
 
 1. Start node with new binary
