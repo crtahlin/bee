@@ -89,6 +89,49 @@ that workers run efficiently in parallel without LevelDB contention.
 LevelDB access, eliminating the mutex contention that was causing 7-13 minute
 sampling times.
 
+---
+
+## 2TB Node Test Results (2026-02-07)
+
+### Test Configuration
+
+- **Node:** 2TB node (doubling 6, storage radius 3)
+- **Binary:** `2.7.0-rc1-be6aa095-dirty` with pause-sync feature
+- **Reserve size:** 226.8M chunks
+- **Committed depth:** 9
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| **Total Duration** | **3m 40s** |
+| Chunks Iterated | 3,658,687 |
+| Sample Inserts | 200 |
+| Chunk Load (parallel workers) | 10m 30s |
+| Taddr Calculation (parallel workers) | 7m 11s |
+| Chunk Load Failed | 0 |
+| Stamp Load Failed | 0 |
+
+### Log Output
+
+```
+"time"="2026-02-07 21:36:23.757278" "level"="info" "logger"="node/storer"
+"msg"="reserve sampler finished" "duration"="3m40.527639315s" "storage_radius"=9
+"stats"="{TotalIterated:3658687 SampleInserts:200 ChunkLoadDuration:10m30s TaddrDuration:7m11s}"
+```
+
+---
+
+## Cross-Node Comparison
+
+| Node | Reserve Size | Duration | Chunks/sec |
+|------|--------------|----------|------------|
+| Local (doubling 5) | 115.7M | 1m 22s | ~43,400 |
+| 2TB (doubling 6) | 226.8M | 3m 40s | ~16,600 |
+
+The 2TB node with ~2x the reserve completed in ~2.7x the time, showing reasonable
+scaling. Both nodes demonstrate 5-10x improvement over the pre-optimization baseline.
+
 ## Verification Steps
 
 1. Start node with new binary
