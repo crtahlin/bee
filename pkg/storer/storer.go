@@ -141,6 +141,7 @@ type Reserve interface {
 	EvictBatch(ctx context.Context, batchID []byte) error
 	ReserveSample(context.Context, []byte, uint8, uint64, *big.Int) (Sample, error)
 	ReserveSize() int
+	IsSamplingActive() bool
 }
 
 // ReserveIterator is a helper interface which can be used to iterate over all
@@ -392,6 +393,7 @@ type Options struct {
 	ReserveWakeUpDuration   time.Duration
 	ReserveMinEvictCount    uint64
 	ReserveCapacityDoubling int
+	ReserveHasCache         bool
 
 	CacheCapacity      uint64
 	CacheMinEvictCount uint64
@@ -449,7 +451,8 @@ type DB struct {
 	syncer           Syncer
 	reserveOptions   reserveOpts
 
-	pinIntegrity *PinIntegrity
+	pinIntegrity   *PinIntegrity
+	samplingActive atomic.Bool // true when sampler is running
 }
 
 type reserveOpts struct {
@@ -568,6 +571,7 @@ func New(ctx context.Context, dirPath string, opts *Options) (*DB, error) {
 			opts.ReserveCapacity,
 			opts.RadiusSetter,
 			logger,
+			opts.ReserveHasCache,
 		)
 		if err != nil {
 			return nil, err

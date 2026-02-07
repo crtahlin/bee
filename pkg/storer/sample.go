@@ -67,6 +67,10 @@ func (db *DB) ReserveSample(
 ) (Sample, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
+	// Pause sync during sampling to avoid LevelDB contention
+	db.samplingActive.Store(true)
+	defer db.samplingActive.Store(false)
+
 	allStats := &SampleStats{}
 	statsLock := sync.Mutex{}
 	addStats := func(stats SampleStats) {
