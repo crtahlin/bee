@@ -88,6 +88,51 @@ After implementing the fix:
 2. ChunkLoadDuration should be consistent (~2-3m)
 3. No variance based on time of day
 
-## Impact
+## Local vs 2TB Node Comparison
 
-With the fix, sampling should complete in 2-3 minutes consistently, regardless of network activity. This is critical for lottery participation during busy periods.
+| Metric | Local Node (synced) | 2TB Node (syncing) |
+|--------|---------------------|-------------------|
+| Reserve Size | 115.7M chunks | 226.8M chunks |
+| Mean Duration | 74.3s (1.2m) | 253.3s (4.2m) |
+| Range | 6.7s | 247.7s |
+| **Range % of Mean** | **9.0%** | **97.8%** |
+| **CV** | **2.0%** | **29.9%** |
+| Time-of-day effect | Minimal | Massive (5x) |
+
+### Why Local Node is Consistent
+
+The local node is **fully synced** and receives minimal incoming pushsync traffic:
+- Evening tests: mean=74.8s, range=6.4s
+- Night tests: mean=73.8s, range=1.9s
+- Difference: only 1 second between evening and night
+
+The 2TB node is **still syncing** and receives heavy pushsync traffic from peers, causing massive I/O contention during sampling.
+
+## Why NOT to Pause Pushsync
+
+While pausing pushsync during sampling would eliminate variance, it would break uploads:
+
+1. **Upload flow would fail:**
+   - User uploads chunk → pushsync forwards to neighborhood
+   - All neighborhood nodes reject with "sampling, try later"
+   - Upload fails or stalls for 2-5 minutes per sampling round
+
+2. **Network-wide impact:**
+   - During redistribution, many nodes sample simultaneously
+   - Would cause significant upload failures network-wide
+   - Rejected chunks retry → more congestion → cascading failures
+
+3. **Current behavior is acceptable:**
+   - Synced nodes: consistent ~1-2 min sampling
+   - Syncing nodes: 2-7 min sampling (still much better than pre-optimization)
+   - No upload disruption
+
+## Conclusion
+
+The variance in the 2TB node is caused by pushsync traffic during active syncing. Once the node is fully synced, sampling will become consistent like the local node. The current implementation (pullsync pause only) is the right trade-off:
+
+- **Before optimization:** 7-13 min sampling
+- **After optimization (synced node):** ~1.2 min, CV=2%
+- **After optimization (syncing node):** ~4.2 min, CV=30%
+
+No further changes needed - the variance will naturally decrease as the 2TB node completes syncing.
