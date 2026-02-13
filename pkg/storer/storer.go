@@ -269,8 +269,7 @@ func initStore(basePath string, opts *Options) (*leveldbstore.Store, error) {
 		BlockCacheCapacity:     int(opts.LdbBlockCacheCapacity),
 		WriteBuffer:            int(opts.LdbWriteBufferSize),
 		DisableSeeksCompaction: opts.LdbDisableSeeksCompaction,
-		CompactionL0Trigger:    8,
-		Filter:                 filter.NewBloomFilter(64),
+		Filter: filter.NewBloomFilter(64),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed creating levelDB index store: %w", err)
@@ -394,6 +393,7 @@ type Options struct {
 	ReserveMinEvictCount    uint64
 	ReserveCapacityDoubling int
 	ReserveHasCache         bool
+	ReserveHasBloom         bool
 
 	CacheCapacity      uint64
 	CacheMinEvictCount uint64
@@ -572,6 +572,7 @@ func New(ctx context.Context, dirPath string, opts *Options) (*DB, error) {
 			opts.RadiusSetter,
 			logger,
 			opts.ReserveHasCache,
+			opts.ReserveHasBloom,
 		)
 		if err != nil {
 			return nil, err
